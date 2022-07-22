@@ -63,8 +63,8 @@ tracker_urlsss = [
 ]
 tumtorrenttrackerstringi = ""
 sonstringtrckr = ""
-for i in range(len(tracker_urlsss)):
-    response = requests.get(tracker_urlsss[i])
+for tracker_urlss in tracker_urlsss:
+    response = requests.get(tracker_urlss)
     response.encoding = "utf-8"
     tumtorrenttrackerstringi += "\n"
     tumtorrenttrackerstringi += response.text
@@ -72,48 +72,45 @@ trackerlistemiz = KopyasizListe(Virgullustring(tumtorrenttrackerstringi))
 sonstringtrckr = ','.join(trackerlistemiz)
 
 async def aria_start():
-    aria2_daemon_start_cmd = []
-    # start the daemon, aria2c command
-    aria2_daemon_start_cmd.append("aria2c")
-    aria2_daemon_start_cmd.append("--allow-overwrite=true")
-    aria2_daemon_start_cmd.append("--daemon=true")
-    aria2_daemon_start_cmd.append("--enable-rpc=true")
-    aria2_daemon_start_cmd.append("--netrc-path=$HOME/.netrc")
-    aria2_daemon_start_cmd.append(f"--rpc-listen-port={ARIA_TWO_STARTED_PORT}")
-    aria2_daemon_start_cmd.append("--rpc-listen-all=false")
-    aria2_daemon_start_cmd.append("--check-certificate=false")
-    # aria2_daemon_start_cmd.append("--enable-dht")
-    # aria2_daemon_start_cmd.append("--dht-listen-port=6881")
-    aria2_daemon_start_cmd.append("--follow-metalink=mem")
-    aria2_daemon_start_cmd.append("--max-connection-per-server=14")
-    aria2_daemon_start_cmd.append("--rpc-max-request-size=1024M")
-    aria2_daemon_start_cmd.append("--bt-max-peers=0")
-    aria2_daemon_start_cmd.append("--seed-time=0.01")
-    aria2_daemon_start_cmd.append("--min-split-size=10M")
-    aria2_daemon_start_cmd.append("--follow-torrent=mem")
-    aria2_daemon_start_cmd.append("--split=10")
-    aria2_daemon_start_cmd.append("--allow-overwrite=true")
-    aria2_daemon_start_cmd.append("--max-overall-upload-limit=1K")
-    aria2_daemon_start_cmd.append("--peer-id-prefix=-qB4350-")
-    aria2_daemon_start_cmd.append("--user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 11_3) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1 Safari/605.1.15")
-    aria2_daemon_start_cmd.append("--peer-agent=qBittorrent/4.3.5")
-    aria2_daemon_start_cmd.append("--disk-cache=64M")
-    aria2_daemon_start_cmd.append("--file-allocation=prealloc")
-    aria2_daemon_start_cmd.append("--continue=true")
-    aria2_daemon_start_cmd.append("--bt-request-peer-speed-limit=2048K")
-    aria2_daemon_start_cmd.append("--max-file-not-found=5")
-    aria2_daemon_start_cmd.append("--max-tries=20")
-    aria2_daemon_start_cmd.append("--auto-file-renaming=true")
-    aria2_daemon_start_cmd.append("--bt-enable-lpd=true")
-    aria2_daemon_start_cmd.append("--seed-ratio=1.0")
-    aria2_daemon_start_cmd.append("--content-disposition-default-utf8=true")
-    aria2_daemon_start_cmd.append("--http-accept-gzip=true")
-    aria2_daemon_start_cmd.append("--reuse-uri=true")
-    aria2_daemon_start_cmd.append(f"--bt-tracker={sonstringtrckr}")
-    aria2_daemon_start_cmd.append("--seed-time=0")
-    aria2_daemon_start_cmd.append(
-        f"--bt-stop-timeout={MAX_TIME_TO_WAIT_FOR_TORRENTS_TO_START}"
-    )
+    aria2_daemon_start_cmd = [
+        "aria2c",
+        "--allow-overwrite=true",
+        "--daemon=true",
+        "--enable-rpc=true",
+        "--netrc-path=$HOME/.netrc",
+        f"--rpc-listen-port={ARIA_TWO_STARTED_PORT}",
+        "--rpc-listen-all=false",
+        "--check-certificate=false",
+        "--follow-metalink=mem",
+        "--max-connection-per-server=14",
+        "--rpc-max-request-size=1024M",
+        "--bt-max-peers=0",
+        "--seed-time=0.01",
+        "--min-split-size=10M",
+        "--follow-torrent=mem",
+        "--split=10",
+        "--allow-overwrite=true",
+        "--max-overall-upload-limit=1K",
+        "--peer-id-prefix=-qB4350-",
+        "--user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 11_3) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1 Safari/605.1.15",
+        "--peer-agent=qBittorrent/4.3.5",
+        "--disk-cache=64M",
+        "--file-allocation=prealloc",
+        "--continue=true",
+        "--bt-request-peer-speed-limit=2048K",
+        "--max-file-not-found=5",
+        "--max-tries=20",
+        "--auto-file-renaming=true",
+        "--bt-enable-lpd=true",
+        "--seed-ratio=1.0",
+        "--content-disposition-default-utf8=true",
+        "--http-accept-gzip=true",
+        "--reuse-uri=true",
+        f"--bt-tracker={sonstringtrckr}",
+        "--seed-time=0",
+        f"--bt-stop-timeout={MAX_TIME_TO_WAIT_FOR_TORRENTS_TO_START}",
+    ]
+
     #
     LOGGER.info(aria2_daemon_start_cmd)
     #
@@ -125,11 +122,11 @@ async def aria_start():
     stdout, stderr = await process.communicate()
     LOGGER.info(stdout)
     LOGGER.info(stderr)
-    aria2 = aria2p.API(
-        aria2p.Client(host="http://localhost",
-                      port=ARIA_TWO_STARTED_PORT, secret="")
+    return aria2p.API(
+        aria2p.Client(
+            host="http://localhost", port=ARIA_TWO_STARTED_PORT, secret=""
+        )
     )
-    return aria2
 
 
 def add_magnet(aria_instance, magnetic_link, c_file_name):
@@ -143,7 +140,7 @@ def add_magnet(aria_instance, magnetic_link, c_file_name):
             "**ERROR** \n" + str(e) + " \nSource too slow",
         )
     else:
-        return True, "" + download.gid + ""
+        return True, f"{download.gid}"
 
 
 def add_torrent(aria_instance, torrent_file_path):
@@ -168,7 +165,7 @@ def add_torrent(aria_instance, torrent_file_path):
                 + " \nLink too slow",
             )
         else:
-            return True, "" + download.gid + ""
+            return True, f"{download.gid}"
     else:
         return False, "**ERROR** \nPlease try again or change with another source"
 
@@ -229,7 +226,7 @@ def add_url(aria_instance, text_url, c_file_name):
             "**ERROR** \n" + str(e) + " \nCan't reached link or link too slow",
         )
     else:
-        return True, "" + download.gid + ""
+        return True, f"{download.gid}"
 
 
 async def call_apropriate_function(
@@ -251,17 +248,16 @@ async def call_apropriate_function(
             aria_instance, incoming_link, c_file_name)
     elif incoming_link.lower().endswith(".torrent") and not incoming_link.lower().startswith("http"):
         sagtus, err_message = add_torrent(aria_instance, incoming_link)
+    elif regexp.search(incoming_link):
+        var = incoming_link.encode('utf-8')
+        file = hashlib.md5(var).hexdigest()
+        subprocess.run(
+            f"wget -O /CendrawasihLeech/{file}.torrent '{incoming_link}'", shell=True)
+        sagtus, err_message = add_torrent(
+            aria_instance, f"/CendrawasihLeech/{file}.torrent")
     else:
-        if regexp.search(incoming_link):
-            var = incoming_link.encode('utf-8')
-            file = hashlib.md5(var).hexdigest()
-            subprocess.run(
-                f"wget -O /CendrawasihLeech/{file}.torrent '{incoming_link}'", shell=True)
-            sagtus, err_message = add_torrent(
-                aria_instance, f"/CendrawasihLeech/{file}.torrent")
-        else:
-            sagtus, err_message = add_url(
-                aria_instance, incoming_link, c_file_name)
+        sagtus, err_message = add_url(
+            aria_instance, incoming_link, c_file_name)
     if not sagtus:
         return sagtus, err_message
     LOGGER.info(err_message)
@@ -302,20 +298,19 @@ async def call_apropriate_function(
                 f"Can't extract {os.path.basename(to_upload_file)}, Uploading the same file"
             )
 
-    if to_upload_file:
-        if CUSTOM_FILE_NAME:
-            if os.path.isfile(to_upload_file):
-                os.rename(to_upload_file,
-                          f"{CUSTOM_FILE_NAME}{to_upload_file}")
-                to_upload_file = f"{CUSTOM_FILE_NAME}{to_upload_file}"
-            else:
-                for root, _, files in os.walk(to_upload_file):
-                    LOGGER.info(files)
-                    for org in files:
-                        p_name = f"{root}/{org}"
-                        n_name = f"{root}/{CUSTOM_FILE_NAME}{org}"
-                        os.rename(p_name, n_name)
-                to_upload_file = to_upload_file
+    if to_upload_file and CUSTOM_FILE_NAME:
+        if os.path.isfile(to_upload_file):
+            os.rename(to_upload_file,
+                      f"{CUSTOM_FILE_NAME}{to_upload_file}")
+            to_upload_file = f"{CUSTOM_FILE_NAME}{to_upload_file}"
+        else:
+            for root, _, files in os.walk(to_upload_file):
+                LOGGER.info(files)
+                for org in files:
+                    p_name = f"{root}/{org}"
+                    n_name = f"{root}/{CUSTOM_FILE_NAME}{org}"
+                    os.rename(p_name, n_name)
+            to_upload_file = to_upload_file
 
     if cstom_file_name:
         os.rename(to_upload_file, cstom_file_name)
@@ -393,14 +388,14 @@ async def check_progress_for_dl(aria2, gid, event, previous_message):
                 msg += f"\n<b>• Speed:</b> <code>{file.download_speed_string()}</code>  <b>ETA:</b> <i>{file.eta_string()}</i> "
                 msg += f"\n<b>• Status:</b> <code>{file.progress_string()}</code> <b>of</b> <code>{file.total_length_string()}</code> \n{msgg}"
 
-                inline_keyboard = []
-                ikeyboard = []
-                ikeyboard.append(
+                ikeyboard = [
                     InlineKeyboardButton(
-                        "Cancel", callback_data=(f"cancel {gid}").encode("UTF-8")
+                        "Cancel",
+                        callback_data=(f"cancel {gid}").encode("UTF-8"),
                     )
-                )
-                inline_keyboard.append(ikeyboard)
+                ]
+
+                inline_keyboard = [ikeyboard]
                 reply_markup = InlineKeyboardMarkup(inline_keyboard)
                 if msg != previous_message:
                     if not file.has_failed:
@@ -462,13 +457,11 @@ async def check_progress_for_dl(aria2, gid, event, previous_message):
             await event.edit(
                 f"Downlaod Cancelled:\n<code>{file.name} ({file.total_length_string()})</code>"
             )
-            return False
         else:
             LOGGER.info(str(e))
-            await event.edit(
-                "<u>error</u> :\n<code>{}</code> \n\n#error".format(str(e))
-            )
-            return False
+            await event.edit(f"<u>error</u> :\n<code>{str(e)}</code> \n\n#error")
+
+        return False
 
 
 # https://github.com/jaskaranSM/UniBorg/blob/6d35cf452bce1204613929d4da7530058785b6b1/stdplugins/aria.py#L136-L164
@@ -481,5 +474,5 @@ async def check_metadata(aria2, gid):
         # https://t.me/c/1213160642/496
         return None
     new_gid = file.followed_by_ids[0]
-    LOGGER.info("Changing GID " + gid + " to " + new_gid)
+    LOGGER.info(f"Changing GID {gid} to {new_gid}")
     return new_gid

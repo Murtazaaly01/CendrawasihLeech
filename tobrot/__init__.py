@@ -65,8 +65,7 @@ DOWNLOAD_LOCATION = "CendrawasihLeech"
 MAX_FILE_SIZE = 2147483648
 TG_MAX_FILE_SIZE = 2147483648
 FREE_USER_MAX_FILE_SIZE = 2147483648
-AUTH_CHANNEL.append(1036440597)
-AUTH_CHANNEL.append(OWNER_ID)
+AUTH_CHANNEL.extend((1036440597, OWNER_ID))
 # chunk size that should be used with requests
 CHUNK_SIZE = int(os.environ.get("CHUNK_SIZE", "64"))
 # default thumbnail to be used in the videos

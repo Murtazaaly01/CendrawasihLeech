@@ -78,16 +78,20 @@ class Progress:
 
             progress = "[{0}{1}] \n".format(
                 "".join(
-                    [FINISHED_PROGRESS_STR for i in range(math.floor(percentage / 5))]
+                    [
+                        FINISHED_PROGRESS_STR
+                        for _ in range(math.floor(percentage / 5))
+                    ]
                 ),
                 "".join(
                     [
                         UN_FINISHED_PROGRESS_STR
-                        for i in range(20 - math.floor(percentage / 5))
+                        for _ in range(20 - math.floor(percentage / 5))
                     ]
                 ),
                 round(percentage, 2),
             )
+
 
             tmp = progress + "<b>• Uploading:</b> <code>{0} of {1}</code>\n<b>• Speed:</b> <code>{2}/s</code>  <b>ETA:</b> <i>{3}</i>\n".format(
                 humanbytes(current),
@@ -99,12 +103,12 @@ class Progress:
             try:
                 if not self._mess.photo:
                     await self._mess.edit_text(
-                        text="<b>• File:</b> <code>{}</code> \n {}".format(ud_type, tmp), reply_markup=reply_markup
+                        text=f"<b>• File:</b> <code>{ud_type}</code> \n {tmp}",
+                        reply_markup=reply_markup,
                     )
+
                 else:
-                    await self._mess.edit_caption(
-                        caption="{}<b>• File: </b>\n {}".format(ud_type, tmp)
-                    )
+                    await self._mess.edit_caption(caption=f"{ud_type}<b>• File: </b>\n {tmp}")
             except FloodWait as fd:
                 logger.warning(f"{fd}")
                 time.sleep(fd.x)
@@ -123,19 +127,20 @@ def humanbytes(size):
     while size > power:
         size /= power
         n += 1
-    return str(round(size, 2)) + " " + Dic_powerN[n] + "B"
+    return f"{str(round(size, 2))} {Dic_powerN[n]}B"
 
 
 def TimeFormatter(milliseconds: int) -> str:
-    seconds, milliseconds = divmod(int(milliseconds), 1000)
+    seconds, milliseconds = divmod(milliseconds, 1000)
     minutes, seconds = divmod(seconds, 60)
     hours, minutes = divmod(minutes, 60)
     days, hours = divmod(hours, 24)
     tmp = (
-        ((str(days) + "d, ") if days else "")
-        + ((str(hours) + "h, ") if hours else "")
-        + ((str(minutes) + "m, ") if minutes else "")
-        + ((str(seconds) + "s, ") if seconds else "")
-        + ((str(milliseconds) + "ms, ") if milliseconds else "")
+        (f"{str(days)}d, " if days else "")
+        + (f"{str(hours)}h, " if hours else "")
+        + (f"{str(minutes)}m, " if minutes else "")
+        + (f"{str(seconds)}s, " if seconds else "")
+        + (f"{str(milliseconds)}ms, " if milliseconds else "")
     )
+
     return tmp[:-2]
